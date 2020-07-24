@@ -82,5 +82,6 @@ public abstract class Action {
       public static final String RESOLVE_NAVIGATION_TARGET = "resolveNavigationTarget";
       public static final String SET_RESOLVED_NAVIGATION_TARGET = "setResolvedNavigationTarget";
       public static final String SET_EDIT_MODE = "setEditMode";
+      public static final String SEARCH="search";
    }
 }
