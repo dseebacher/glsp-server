@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GLSP Server Tests
+Bundle-SymbolicName: org.eclipse.glsp.server.test
+Bundle-Version: 0.8.0.qualifier
+Fragment-Host: org.eclipse.glsp.server;bundle-version="0.7.0"
+Automatic-Module-Name: org.eclipse.glsp.server.test
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: EclipseSource
+Export-Package: org.eclipse.glsp.server,
+ org.eclipse.glsp.server.impl
+Import-Package: org.junit;version="4.12.0",
+ org.junit.jupiter.api;version="5.0.0"
