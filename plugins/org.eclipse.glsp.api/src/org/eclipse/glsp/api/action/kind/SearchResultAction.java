@@ -1,10 +1,8 @@
 package org.eclipse.glsp.api.action.kind;
 
-import org.eclipse.glsp.api.action.Action;
-
 import java.util.Collection;
 
-public class SearchResultAction extends Action {
+public class SearchResultAction extends ResponseAction {
 
     private Collection<String> results;
 

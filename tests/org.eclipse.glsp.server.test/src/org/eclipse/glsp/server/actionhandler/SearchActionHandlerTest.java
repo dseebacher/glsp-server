@@ -1,7 +1,7 @@
 package org.eclipse.glsp.server.actionhandler;
 
 import org.eclipse.glsp.api.action.Action;
-import org.eclipse.glsp.api.action.kind.SearchAction;
+import org.eclipse.glsp.api.action.kind.RequestSearchAction;
 import org.eclipse.glsp.api.action.kind.SearchResultAction;
 import org.eclipse.glsp.api.model.GraphicalModelState;
 import org.eclipse.glsp.graph.GGraph;
@@ -28,7 +28,7 @@ public class SearchActionHandlerTest {
 
     @Test
     void searchOnEmptyModelShouldReturnNoId() {
-        SearchAction requestAction = new SearchAction(SOME_SEARCH_TERM);
+        RequestSearchAction requestAction = new RequestSearchAction(SOME_SEARCH_TERM);
 
         GraphicalModelState state = stateWithRoot(null);
 
@@ -42,7 +42,7 @@ public class SearchActionHandlerTest {
 
     @Test
     void searchFindsALabelBasedOnText() {
-        SearchAction requestAction = new SearchAction(LABEL_123);
+        RequestSearchAction requestAction = new RequestSearchAction(LABEL_123);
 
         GLabel label = label123();
         GModelRoot root = rootWithLabel(label);
@@ -58,7 +58,7 @@ public class SearchActionHandlerTest {
 
     @Test
     void searchCantFindALabelBasedOnText() {
-        SearchAction requestAction = new SearchAction(LABEL_456);
+        RequestSearchAction requestAction = new RequestSearchAction(LABEL_456);
 
         GLabel label = label123();
         GModelRoot root = rootWithLabel(label);
@@ -74,7 +74,7 @@ public class SearchActionHandlerTest {
 
     @Test
     void searchFindsANestedLabelBasedOnText() {
-        SearchAction requestAction = new SearchAction(LABEL_123);
+        RequestSearchAction requestAction = new RequestSearchAction(LABEL_123);
 
         GLabel label = label123();
         GGraph graph = GraphFactory.eINSTANCE.createGGraph();

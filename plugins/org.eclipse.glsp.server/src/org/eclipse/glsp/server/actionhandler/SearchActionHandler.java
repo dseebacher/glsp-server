@@ -2,7 +2,7 @@ package org.eclipse.glsp.server.actionhandler;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.glsp.api.action.Action;
-import org.eclipse.glsp.api.action.kind.SearchAction;
+import org.eclipse.glsp.api.action.kind.RequestSearchAction;
 import org.eclipse.glsp.api.action.kind.SearchResultAction;
 import org.eclipse.glsp.api.model.GraphicalModelState;
 import org.eclipse.glsp.graph.GLabel;
@@ -13,10 +13,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class SearchActionHandler extends BasicActionHandler<SearchAction> {
+public class SearchActionHandler extends BasicActionHandler<RequestSearchAction> {
 
     @Override
-    protected List<Action> executeAction(SearchAction actualAction, GraphicalModelState modelState) {
+    protected List<Action> executeAction(RequestSearchAction actualAction, GraphicalModelState modelState) {
         return Arrays.asList(new SearchResultAction(findSearchTerm(modelState, actualAction.getSearchTerm())));
     }
 

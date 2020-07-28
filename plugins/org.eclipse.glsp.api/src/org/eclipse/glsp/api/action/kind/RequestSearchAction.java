@@ -3,15 +3,15 @@ package org.eclipse.glsp.api.action.kind;
 import org.eclipse.glsp.api.action.Action;
 
 // TODO: should it be a request action or just an action?
-public class SearchAction extends Action {
+public class RequestSearchAction extends RequestAction<SearchResultAction> {
 
     private String searchTerm;
 
-    public SearchAction() {
+    public RequestSearchAction() {
         super(Action.Kind.SEARCH);
     }
 
-    public SearchAction(final String searchTerm) {
+    public RequestSearchAction(final String searchTerm) {
         this();
         this.searchTerm = searchTerm;
     }
