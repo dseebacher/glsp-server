@@ -49,7 +49,7 @@ public class SearchActionHandlerTest {
         GraphicalModelState state = stateWithRoot(root);
 
 
-        List<SearchResultAction> expectedResultAction = resultOf(Arrays.asList(label.getId()));
+        List<SearchResultAction> expectedResultAction = resultOf(Collections.singletonList(label.getId()));
 
         List<Action> actualResultAction = new SearchActionHandler().executeAction(requestAction, state);
 
@@ -84,7 +84,7 @@ public class SearchActionHandlerTest {
         GraphicalModelState state = stateWithRoot(root);
 
 
-        List<SearchResultAction> expectedResultAction = resultOf(Arrays.asList(label.getId()));
+        List<SearchResultAction> expectedResultAction = resultOf(Collections.singletonList(label.getId()));
 
         List<Action> actualResultAction = new SearchActionHandler().executeAction(requestAction, state);
 
@@ -92,7 +92,7 @@ public class SearchActionHandlerTest {
     }
 
     private List<SearchResultAction> resultOf(Collection<String> searchTerms) {
-        return Arrays.asList(new SearchResultAction(searchTerms));
+        return Collections.singletonList(new SearchResultAction(searchTerms));
     }
 
     private GModelRoot rootWithLabel(GLabel label) {
