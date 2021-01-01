@@ -1,10 +1,11 @@
-package org.eclipse.glsp.server.actions;
+package org.eclipse.glsp.server.features.search;
 
 import org.eclipse.glsp.graph.GGraph;
 import org.eclipse.glsp.graph.GLabel;
 import org.eclipse.glsp.graph.GModelRoot;
 import org.eclipse.glsp.graph.GraphFactory;
 import org.eclipse.glsp.graph.builder.impl.GLabelBuilder;
+import org.eclipse.glsp.server.actions.Action;
 import org.eclipse.glsp.server.model.DefaultModelStateProvider;
 import org.eclipse.glsp.server.model.GModelState;
 import org.junit.jupiter.api.Assertions;
@@ -28,7 +29,7 @@ public class SearchActionHandlerTest {
         GModelState state = stateWithRoot(null);
 
 
-        List<SearchResultAction> expectedResultAction = resultOf(Collections.emptyList());
+        List<SearchAction> expectedResultAction = resultOf(Collections.emptyList());
 
         List<Action> actualReturnActions = new SearchActionHandler().executeAction(requestAction, state);
 
@@ -44,7 +45,7 @@ public class SearchActionHandlerTest {
         GModelState state = stateWithRoot(root);
 
 
-        List<SearchResultAction> expectedResultAction = resultOf(Collections.singletonList(label.getId()));
+        List<SearchAction> expectedResultAction = resultOf(Collections.singletonList(label.getId()));
 
         List<Action> actualResultAction = new SearchActionHandler().executeAction(requestAction, state);
 
@@ -60,7 +61,7 @@ public class SearchActionHandlerTest {
         GModelState state = stateWithRoot(root);
 
 
-        List<SearchResultAction> expectedResultAction = resultOf(Collections.emptyList());
+        List<SearchAction> expectedResultAction = resultOf(Collections.emptyList());
 
         List<Action> actualResultAction = new SearchActionHandler().executeAction(requestAction, state);
 
@@ -79,15 +80,15 @@ public class SearchActionHandlerTest {
         GModelState state = stateWithRoot(root);
 
 
-        List<SearchResultAction> expectedResultAction = resultOf(Collections.singletonList(label.getId()));
+        List<SearchAction> expectedResultAction = resultOf(Collections.singletonList(label.getId()));
 
         List<Action> actualResultAction = new SearchActionHandler().executeAction(requestAction, state);
 
         assertEqualActions(expectedResultAction, actualResultAction);
     }
 
-    private List<SearchResultAction> resultOf(Collection<String> searchTerms) {
-        return Collections.singletonList(new SearchResultAction(searchTerms));
+    private List<SearchAction> resultOf(Collection<String> searchTerms) {
+        return Collections.singletonList(new SearchAction(searchTerms));
     }
 
     private GModelRoot rootWithLabel(GLabel label) {
@@ -108,13 +109,13 @@ public class SearchActionHandlerTest {
         return label;
     }
 
-    private void assertEqualActions(List<SearchResultAction> expectedResultAction, List<Action> actualResultAction) {
+    private void assertEqualActions(List<SearchAction> expectedResultAction, List<Action> actualResultAction) {
         Iterator<Action> actualActionIterator = actualResultAction.iterator();
 
-        for (SearchResultAction expectedAction : expectedResultAction) {
+        for (SearchAction expectedAction : expectedResultAction) {
             Action actualAction = actualActionIterator.next();
-            Assertions.assertTrue(actualAction instanceof SearchResultAction);
-            Assertions.assertEquals(expectedAction.getResults(), ((SearchResultAction) actualAction).getResults());
+            Assertions.assertTrue(actualAction instanceof SearchAction);
+            Assertions.assertEquals(expectedAction.getResults(), ((SearchAction) actualAction).getResults());
         }
     }
 }

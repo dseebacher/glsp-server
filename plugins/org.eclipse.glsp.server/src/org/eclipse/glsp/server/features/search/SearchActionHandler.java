@@ -1,8 +1,10 @@
-package org.eclipse.glsp.server.actions;
+package org.eclipse.glsp.server.features.search;
 
 import org.eclipse.glsp.graph.GLabel;
 import org.eclipse.glsp.graph.GModelElement;
 import org.eclipse.glsp.graph.GModelRoot;
+import org.eclipse.glsp.server.actions.Action;
+import org.eclipse.glsp.server.actions.BasicActionHandler;
 import org.eclipse.glsp.server.model.GModelState;
 
 import java.util.Collection;
@@ -17,7 +19,7 @@ public class SearchActionHandler extends
 
     @Override
     protected List<Action> executeAction(RequestSearchAction actualAction, GModelState modelState) {
-        return Collections.singletonList(new SearchResultAction(findSearchTerm(modelState, actualAction.getSearchTerm())));
+        return Collections.singletonList(new SearchAction(findSearchTerm(modelState, actualAction.getSearchTerm())));
     }
 
     private Collection<String> findSearchTerm(GModelState modelState, String searchTerm) {

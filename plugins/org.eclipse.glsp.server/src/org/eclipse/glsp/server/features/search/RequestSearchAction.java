@@ -1,8 +1,10 @@
-package org.eclipse.glsp.server.actions;
+package org.eclipse.glsp.server.features.search;
 
+
+import org.eclipse.glsp.server.actions.RequestAction;
 
 // TODO: should it be a request action or just an action?
-public class RequestSearchAction extends RequestAction<SearchResultAction> {
+public class RequestSearchAction extends RequestAction<SearchAction> {
 
     public static final String ID = "requestSearch";
 
