@@ -25,7 +25,6 @@
 			<modules>
 				<module>org.eclipse.glsp.server.test</module>
 				<module>org.eclipse.glsp.graph.test</module>
-				<module>org.eclipse.glsp.server.test</module>
 			</modules>
 		</profile>
 	</profiles>
