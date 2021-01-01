@@ -61,6 +61,8 @@ import org.eclipse.glsp.server.features.navigation.SetNavigationTargetsAction;
 import org.eclipse.glsp.server.features.navigation.SetResolvedNavigationTargetAction;
 import org.eclipse.glsp.server.features.popup.RequestPopupModelActionHandler;
 import org.eclipse.glsp.server.features.popup.SetPopupModelAction;
+import org.eclipse.glsp.server.features.search.SearchAction;
+import org.eclipse.glsp.server.features.search.SearchActionHandler;
 import org.eclipse.glsp.server.features.undoredo.UndoRedoActionHandler;
 import org.eclipse.glsp.server.features.validation.DeleteMarkersAction;
 import org.eclipse.glsp.server.features.validation.RequestMarkersHandler;
@@ -99,7 +101,8 @@ public final class MultiBindingDefaults {
       RequestContextActionsHandler.class,
       RequestEditValidationHandler.class,
       RequestMarkersHandler.class,
-      SetEditModeActionHandler.class);
+      SetEditModeActionHandler.class,
+      SearchActionHandler.class);
 
    public static final List<Class<? extends Action>> DEFAULT_CLIENT_ACTIONS = Lists.newArrayList(
       CenterAction.class,
@@ -130,7 +133,8 @@ public final class MultiBindingDefaults {
       TriggerNodeCreationAction.class,
       TriggerEdgeCreationAction.class,
       UpdateModelAction.class,
-      ConfigureServerHandlersAction.class);
+      ConfigureServerHandlersAction.class,
+      SearchAction.class);
 
    public static final List<Class<? extends OperationHandler>> DEFAULT_OPERATION_HANDLERS = Lists.newArrayList(
       ApplyLabelEditOperationHandler.class,
