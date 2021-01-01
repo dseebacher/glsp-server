@@ -47,8 +47,6 @@ import org.eclipse.elk.graph.properties.Property;
 import org.eclipse.elk.graph.util.ElkGraphUtil;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.glsp.api.layout.ILayoutEngine;
-import org.eclipse.glsp.api.model.GraphicalModelState;
 import org.eclipse.glsp.graph.GBoundsAware;
 import org.eclipse.glsp.graph.GDimension;
 import org.eclipse.glsp.graph.GEdge;
@@ -61,6 +59,8 @@ import org.eclipse.glsp.graph.GNode;
 import org.eclipse.glsp.graph.GPoint;
 import org.eclipse.glsp.graph.GPort;
 import org.eclipse.glsp.graph.GraphFactory;
+import org.eclipse.glsp.server.layout.ILayoutEngine;
+import org.eclipse.glsp.server.model.GModelState;
 
 import com.google.common.collect.Maps;
 
@@ -72,8 +72,7 @@ import com.google.common.collect.Maps;
  * The layout engine must be initialized once during the lifecycle of the
  * application by calling {@link #initialize(ILayoutMetaDataProvider...)}. The
  * arguments of that method should be all meta data providers of the layout
- * algorithms that should be used by this layout engine, e.g.
- * {@link org.eclipse.elk.alg.layered.options.LayeredMetaDataProvider}.
+ * algorithms that should be used by this layout engine.
  * </p>
  */
 public class ElkLayoutEngine implements ILayoutEngine {
@@ -96,7 +95,7 @@ public class ElkLayoutEngine implements ILayoutEngine {
     * for your model using a {@link SprottyLayoutConfigurator}.
     */
    @Override
-   public void layout(final GraphicalModelState modelState) {
+   public void layout(final GModelState modelState) {
       if (modelState.getRoot() instanceof GGraph) {
          layout((GGraph) modelState.getRoot(), null);
       }

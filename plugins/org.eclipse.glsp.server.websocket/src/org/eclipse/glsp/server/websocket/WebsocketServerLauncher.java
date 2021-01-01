@@ -22,15 +22,12 @@ import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
 
 import org.apache.log4j.Logger;
-import org.eclipse.glsp.api.di.GLSPModule;
+import org.eclipse.glsp.server.di.GLSPModule;
 import org.eclipse.glsp.server.launch.GLSPServerLauncher;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 public class WebsocketServerLauncher extends GLSPServerLauncher {
    private static Logger LOG = Logger.getLogger(WebsocketServerLauncher.class);
@@ -41,6 +38,7 @@ public class WebsocketServerLauncher extends GLSPServerLauncher {
    public WebsocketServerLauncher(final GLSPModule module, final String endpointPath) {
       super(module);
       this.endpointPath = endpointPath.startsWith("/") ? endpointPath.substring(1) : endpointPath;
+      addAdditionalModules(new WebsocketModule());
    }
 
    public WebsocketServerLauncher(final GLSPModule module, final String endpointPath, final String clientAppPath) {
@@ -49,17 +47,11 @@ public class WebsocketServerLauncher extends GLSPServerLauncher {
    }
 
    @Override
-   protected Injector doSetup() {
-      return Guice.createInjector(getGLSPModule(), new WebsocketModule());
-   }
-
-   @Override
    @SuppressWarnings("checkstyle:IllegalCatch")
-   public void run(final String hostname, final int port) {
+   public void start(final String hostname, final int port) {
       try {
          // Setup Jetty Server
          server = new Server(new InetSocketAddress(hostname, port));
-
          ServletContextHandler webAppContext;
 
          // (If a clientAppPath is given)setup client app serving
@@ -82,7 +74,7 @@ public class WebsocketServerLauncher extends GLSPServerLauncher {
          ServerContainer container = WebSocketServerContainerInitializer.configureContext(webAppContext);
          ServerEndpointConfig.Builder builder = ServerEndpointConfig.Builder.create(GLSPServerEndpoint.class,
             "/" + endpointPath);
-         builder.configurator(new GLSPConfigurator(getInjector()));
+         builder.configurator(new GLSPConfigurator(this::createInjector));
          container.addEndpoint(builder.build());
 
          // Start the server

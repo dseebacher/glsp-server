@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2020 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,95 +15,107 @@
  ********************************************************************************/
 package org.eclipse.glsp.server.di;
 
+import static org.eclipse.glsp.server.actions.ClientActionHandler.CLIENT_ACTIONS;
+
 import java.util.function.Consumer;
 
-import org.eclipse.glsp.api.action.Action;
-import org.eclipse.glsp.api.action.ActionProcessor;
-import org.eclipse.glsp.api.di.GLSPModule;
-import org.eclipse.glsp.api.diagram.DiagramConfiguration;
-import org.eclipse.glsp.api.factory.GraphGsonConfiguratorFactory;
-import org.eclipse.glsp.api.handler.ActionHandler;
-import org.eclipse.glsp.api.handler.OperationHandler;
-import org.eclipse.glsp.api.handler.ServerCommandHandler;
-import org.eclipse.glsp.api.jsonrpc.GLSPClientProvider;
-import org.eclipse.glsp.api.jsonrpc.GLSPServer;
-import org.eclipse.glsp.api.model.ModelStateProvider;
-import org.eclipse.glsp.api.provider.ContextActionsProvider;
-import org.eclipse.glsp.api.provider.ContextEditValidator;
-import org.eclipse.glsp.api.provider.NavigationTargetProvider;
-import org.eclipse.glsp.api.provider.ToolPaletteItemProvider;
-import org.eclipse.glsp.api.registry.ActionHandlerRegistry;
-import org.eclipse.glsp.api.registry.ActionRegistry;
-import org.eclipse.glsp.api.registry.ContextActionsProviderRegistry;
-import org.eclipse.glsp.api.registry.ContextEditValidatorRegistry;
-import org.eclipse.glsp.api.registry.DiagramConfigurationRegistry;
-import org.eclipse.glsp.api.registry.NavigationTargetProviderRegistry;
-import org.eclipse.glsp.api.registry.OperationHandlerRegistry;
-import org.eclipse.glsp.api.registry.ServerCommandHandlerRegistry;
-import org.eclipse.glsp.server.action.DefaultActionProcessor;
-import org.eclipse.glsp.server.factory.DefaultGraphGsonConfiguratorFactory;
-import org.eclipse.glsp.server.jsonrpc.DefaultGLSPClientProvider;
+import org.eclipse.glsp.server.actions.Action;
+import org.eclipse.glsp.server.actions.ActionDispatcher;
+import org.eclipse.glsp.server.actions.ActionHandler;
+import org.eclipse.glsp.server.actions.ActionHandlerRegistry;
+import org.eclipse.glsp.server.actions.ActionRegistry;
+import org.eclipse.glsp.server.actions.ClientActionHandler;
+import org.eclipse.glsp.server.diagram.DiagramConfiguration;
+import org.eclipse.glsp.server.diagram.DiagramConfigurationRegistry;
+import org.eclipse.glsp.server.features.contextactions.ContextActionsProvider;
+import org.eclipse.glsp.server.features.contextactions.ContextActionsProviderRegistry;
+import org.eclipse.glsp.server.features.directediting.ContextEditValidator;
+import org.eclipse.glsp.server.features.directediting.ContextEditValidatorRegistry;
+import org.eclipse.glsp.server.features.navigation.NavigationTargetProvider;
+import org.eclipse.glsp.server.features.navigation.NavigationTargetProviderRegistry;
+import org.eclipse.glsp.server.features.toolpalette.DefaultToolPaletteItemProvider;
+import org.eclipse.glsp.server.features.toolpalette.ToolPaletteItemProvider;
+import org.eclipse.glsp.server.internal.action.DefaultActionDispatcher;
+import org.eclipse.glsp.server.internal.di.DIActionHandlerRegistry;
+import org.eclipse.glsp.server.internal.di.DIActionRegistry;
+import org.eclipse.glsp.server.internal.di.DIContextActionsProviderRegistry;
+import org.eclipse.glsp.server.internal.di.DIContextEditValidatorRegistry;
+import org.eclipse.glsp.server.internal.di.DIDiagramConfigurationRegistry;
+import org.eclipse.glsp.server.internal.di.DINavigationTargetProviderRegistry;
+import org.eclipse.glsp.server.internal.di.DIOperationHandlerRegistry;
+import org.eclipse.glsp.server.internal.di.MultiBindingDefaults;
+import org.eclipse.glsp.server.internal.json.DefaultGraphGsonConfiguratorFactory;
+import org.eclipse.glsp.server.jsonrpc.DefaultClientSessionManager;
 import org.eclipse.glsp.server.jsonrpc.DefaultGLSPServer;
+import org.eclipse.glsp.server.jsonrpc.GraphGsonConfiguratorFactory;
 import org.eclipse.glsp.server.model.DefaultModelStateProvider;
-import org.eclipse.glsp.server.provider.DefaultToolPaletteItemProvider;
-import org.eclipse.glsp.server.registry.DIActionHandlerRegistry;
-import org.eclipse.glsp.server.registry.DIActionRegistry;
-import org.eclipse.glsp.server.registry.DIContextActionsProviderRegistry;
-import org.eclipse.glsp.server.registry.DIContextEditValidatorRegistry;
-import org.eclipse.glsp.server.registry.DIDiagramConfigurationRegistry;
-import org.eclipse.glsp.server.registry.DINavigationTargetProviderRegistry;
-import org.eclipse.glsp.server.registry.DIOperationHandlerRegistry;
-import org.eclipse.glsp.server.registry.DIServerCommandHandlerRegistry;
+import org.eclipse.glsp.server.model.ModelStateProvider;
+import org.eclipse.glsp.server.operations.OperationHandler;
+import org.eclipse.glsp.server.operations.OperationHandlerRegistry;
+import org.eclipse.glsp.server.protocol.ClientSessionManager;
+import org.eclipse.glsp.server.protocol.GLSPServer;
+import org.eclipse.glsp.server.utils.MultiBinding;
 
 public abstract class DefaultGLSPModule extends GLSPModule {
 
    @Override
    public void configure() {
       super.configure();
-      configureMultiBindConfigs();
+      configureMultiBinding();
    }
 
-   protected void configureMultiBindConfigs() {
-      configure(MultiBindConfig.create(Action.class), this::configureActions);
-      configure(MultiBindConfig.create(ActionHandler.class), this::configureActionHandlers);
-      configure(MultiBindConfig.create(ServerCommandHandler.class), this::configureServerCommandHandlers);
-      configure(MultiBindConfig.create(OperationHandler.class), this::configureOperationHandlers);
-      configure(MultiBindConfig.create(DiagramConfiguration.class), this::configureDiagramConfigurations);
-      configure(MultiBindConfig.create(ContextActionsProvider.class), this::configureContextActionsProviders);
-      configure(MultiBindConfig.create(ContextEditValidator.class), this::configureContextEditValidators);
-      configure(MultiBindConfig.create(NavigationTargetProvider.class), this::configureNavigationTargetProviders);
+   protected void configureMultiBinding() {
+      configure(MultiBinding.create(Action.class).setAnnotationName(CLIENT_ACTIONS), this::configureClientActions);
+      configure(MultiBinding.create(ActionHandler.class), this::configureActionHandlers);
+      configure(MultiBinding.create(OperationHandler.class), this::configureOperationHandlers);
+      configure(MultiBinding.create(DiagramConfiguration.class), this::configureDiagramConfigurations);
+      configure(MultiBinding.create(ContextActionsProvider.class), this::configureContextActionsProviders);
+      configure(MultiBinding.create(ContextEditValidator.class), this::configureContextEditValidators);
+      configure(MultiBinding.create(NavigationTargetProvider.class), this::configureNavigationTargetProviders);
    }
 
-   protected <T> void configure(final MultiBindConfig<T> multiBindings,
-      final Consumer<MultiBindConfig<T>> configurator) {
-      configurator.accept(multiBindings);
-      multiBindings.applyBinding(binder());
+   protected <T> void configure(final MultiBinding<T> binding, final Consumer<MultiBinding<T>> configurator) {
+      configurator.accept(binding);
+      binding.applyBinding(binder());
    }
 
-   protected abstract void configureDiagramConfigurations(MultiBindConfig<DiagramConfiguration> config);
+   protected abstract void configureDiagramConfigurations(MultiBinding<DiagramConfiguration> binding);
 
-   protected void configureServerCommandHandlers(final MultiBindConfig<ServerCommandHandler> bindings) {}
-
-   protected void configureActions(final MultiBindConfig<Action> bindings) {
-      bindings.addAll(MultiBindingDefaults.DEFAULT_ACTIONS);
+   /**
+    * Actions that will be handled by delegation to the client, e.g. via {@link ClientActionHandler}
+    *
+    * @param binding action bindings
+    */
+   protected void configureClientActions(final MultiBinding<Action> binding) {
+      binding.addAll(MultiBindingDefaults.DEFAULT_CLIENT_ACTIONS);
    }
 
-   protected void configureActionHandlers(final MultiBindConfig<ActionHandler> bindings) {
-      bindings.addAll(MultiBindingDefaults.DEFAULT_ACTION_HANDLERS);
+   /**
+    * Actions that can be handled by the server.
+    *
+    * @param binding action handler bindings
+    */
+   protected void configureActionHandlers(final MultiBinding<ActionHandler> binding) {
+      binding.addAll(MultiBindingDefaults.DEFAULT_ACTION_HANDLERS);
    }
 
-   protected void configureOperationHandlers(
-      final MultiBindConfig<OperationHandler> bindings) {
-      bindings.addAll(MultiBindingDefaults.DEFAULT_OPERATION_HANDLERS);
+   /***
+    * Operations that can be handled by the server.
+    *
+    * @param binding operation handler bindings
+    */
+   protected void configureOperationHandlers(final MultiBinding<OperationHandler> binding) {
+      binding.addAll(MultiBindingDefaults.DEFAULT_OPERATION_HANDLERS);
    }
 
-   protected void configureContextActionsProviders(final MultiBindConfig<ContextActionsProvider> config) {}
+   protected void configureContextActionsProviders(final MultiBinding<ContextActionsProvider> binding) {}
 
-   protected void configureContextEditValidators(final MultiBindConfig<ContextEditValidator> config) {}
+   protected void configureContextEditValidators(final MultiBinding<ContextEditValidator> binding) {}
 
-   protected void configureNavigationTargetProviders(final MultiBindConfig<NavigationTargetProvider> config) {}
+   protected void configureNavigationTargetProviders(final MultiBinding<NavigationTargetProvider> binding) {}
 
    @Override
+   @SuppressWarnings("rawtypes")
    protected Class<? extends GLSPServer> bindGLSPServer() {
       return DefaultGLSPServer.class;
    }
@@ -119,13 +131,8 @@ public abstract class DefaultGLSPModule extends GLSPModule {
    }
 
    @Override
-   protected Class<? extends ActionProcessor> bindActionProcessor() {
-      return DefaultActionProcessor.class;
-   }
-
-   @Override
-   protected Class<? extends GLSPClientProvider> bindGSLPClientProvider() {
-      return DefaultGLSPClientProvider.class;
+   protected Class<? extends ActionDispatcher> bindActionDispatcher() {
+      return DefaultActionDispatcher.class;
    }
 
    @Override
@@ -169,8 +176,6 @@ public abstract class DefaultGLSPModule extends GLSPModule {
    }
 
    @Override
-   protected Class<? extends ServerCommandHandlerRegistry> bindServerCommandHandlerRegistry() {
-      return DIServerCommandHandlerRegistry.class;
-   }
+   protected ClientSessionManager getClientSessionManager() { return DefaultClientSessionManager.INSTANCE; }
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2020 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -17,20 +17,22 @@ package org.eclipse.glsp.server.websocket;
 
 import java.util.Collection;
 
+import javax.websocket.CloseReason;
 import javax.websocket.EndpointConfig;
 import javax.websocket.Session;
 
-import org.eclipse.glsp.api.json.GsonConfigurator;
-import org.eclipse.glsp.api.jsonrpc.GLSPClient;
-import org.eclipse.glsp.api.jsonrpc.GLSPClientAware;
-import org.eclipse.glsp.api.jsonrpc.GLSPServer;
+import org.eclipse.glsp.server.jsonrpc.GLSPJsonrpcClient;
+import org.eclipse.glsp.server.jsonrpc.GLSPJsonrpcServer;
+import org.eclipse.glsp.server.jsonrpc.GsonConfigurator;
+import org.eclipse.glsp.server.protocol.GLSPServer;
 import org.eclipse.lsp4j.jsonrpc.Launcher.Builder;
 import org.eclipse.lsp4j.websocket.WebSocketEndpoint;
 
 import com.google.inject.Inject;
 
-public class GLSPServerEndpoint extends WebSocketEndpoint<GLSPClient> {
+public class GLSPServerEndpoint extends WebSocketEndpoint<GLSPJsonrpcClient> {
    public static final int MAX_TEXT_MESSAGE_BUFFER_SIZE = 8388608;
+   @SuppressWarnings("rawtypes")
    @Inject
    private GLSPServer glspServer;
 
@@ -38,15 +40,15 @@ public class GLSPServerEndpoint extends WebSocketEndpoint<GLSPClient> {
    private GsonConfigurator gsonConfigurator;
 
    @Override
-   protected void configure(final Builder<GLSPClient> builder) {
+   protected void configure(final Builder<GLSPJsonrpcClient> builder) {
       builder.setLocalService(glspServer);
-      builder.setRemoteInterface(GLSPClient.class);
+      builder.setRemoteInterface(GLSPJsonrpcClient.class);
       builder.configureGson(gsonConfigurator::configureGsonBuilder);
    }
 
    @Override
-   protected void connect(final Collection<Object> localServices, final GLSPClient remoteProxy) {
-      localServices.stream().filter(GLSPClientAware.class::isInstance).map(GLSPClientAware.class::cast)
+   protected void connect(final Collection<Object> localServices, final GLSPJsonrpcClient remoteProxy) {
+      localServices.stream().filter(GLSPJsonrpcServer.class::isInstance).map(GLSPJsonrpcServer.class::cast)
          .forEach(ca -> ca.connect(remoteProxy));
    }
 
@@ -56,4 +58,8 @@ public class GLSPServerEndpoint extends WebSocketEndpoint<GLSPClient> {
       super.onOpen(session, config);
    }
 
+   @Override
+   public void onClose(final Session session, final CloseReason closeReason) {
+      glspServer.shutdown();
+   }
 }

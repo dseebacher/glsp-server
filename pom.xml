@@ -6,7 +6,7 @@
 	<groupId>org.eclipse.glsp</groupId>
 	<artifactId>org.eclipse.glsp.parent</artifactId>
 	<description>GLSP Parent pom </description>
-	<version>0.8.0-SNAPSHOT</version>
+	<version>0.9.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>GLSP Parent</name>
@@ -50,10 +50,10 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.source>1.8</java.source>
-		<java.target>1.8</java.target>
-		<project.build.java.target>1.8</project.build.java.target>
-		<target.version>0.8.0-SNAPSHOT</target.version>
+		<java.source>11</java.source>
+		<java.target>11</java.target>
+		<project.build.java.target>11</project.build.java.target>
+		<target.version>0.9.0-SNAPSHOT</target.version>
 	</properties>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -98,10 +98,10 @@
 
 			<modules>
 				<module>plugins/org.eclipse.glsp.server</module>
-				<module>plugins/org.eclipse.glsp.api</module>
 				<module>plugins/org.eclipse.glsp.server.websocket</module>
 				<module>plugins/org.eclipse.glsp.layout</module>
 				<module>plugins/org.eclipse.glsp.graph</module>
+				<module>examples/org.eclipse.glsp.example.workflow</module>
 				<module>releng</module>
 			</modules>
 			<build>
@@ -214,10 +214,10 @@
 
 			<modules>
 				<module>plugins/org.eclipse.glsp.server</module>
-				<module>plugins/org.eclipse.glsp.api</module>
 				<module>plugins/org.eclipse.glsp.server.websocket</module>
 				<module>plugins/org.eclipse.glsp.layout</module>
 				<module>plugins/org.eclipse.glsp.graph</module>
+				<module>examples/org.eclipse.glsp.example.workflow</module>
 				<module>releng</module>
 			</modules>
 		</profile>
@@ -238,10 +238,10 @@
 
 			<modules>
 				<module>plugins/org.eclipse.glsp.graph</module>
-				<module>plugins/org.eclipse.glsp.api</module>
 				<module>plugins/org.eclipse.glsp.layout</module>
 				<module>plugins/org.eclipse.glsp.server</module>
 				<module>plugins/org.eclipse.glsp.server.websocket</module>
+				<module>examples/org.eclipse.glsp.example.workflow</module>
 				<module>tests</module>
 			</modules>
 
@@ -320,10 +320,10 @@
 			<id>m2-release</id>
 			<modules>
 				<module>plugins/org.eclipse.glsp.graph</module>
-				<module>plugins/org.eclipse.glsp.api</module>
 				<module>plugins/org.eclipse.glsp.layout</module>
 				<module>plugins/org.eclipse.glsp.server</module>
 				<module>plugins/org.eclipse.glsp.server.websocket</module>
+				<module>examples/org.eclipse.glsp.example.workflow</module>
 			</modules>
 
 			<distributionManagement>

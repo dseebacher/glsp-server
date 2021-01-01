@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2020 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -32,40 +32,39 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.apache.log4j.Logger;
-import org.eclipse.glsp.api.di.GLSPModule;
-import org.eclipse.glsp.api.json.GsonConfigurator;
-import org.eclipse.glsp.api.jsonrpc.GLSPClient;
-import org.eclipse.glsp.api.jsonrpc.GLSPServer;
+import org.eclipse.glsp.server.di.GLSPModule;
+import org.eclipse.glsp.server.jsonrpc.GLSPJsonrpcClient;
+import org.eclipse.glsp.server.jsonrpc.GLSPJsonrpcServer;
+import org.eclipse.glsp.server.jsonrpc.GsonConfigurator;
+import org.eclipse.glsp.server.protocol.GLSPServer;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 
 import com.google.gson.GsonBuilder;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 public class DefaultGLSPServerLauncher extends GLSPServerLauncher {
+   public static final String START_UP_COMPLETE_MSG = "[GLSP-Server]:Startup completed";
    private static Logger log = Logger.getLogger(DefaultGLSPServerLauncher.class);
 
    private ExecutorService threadPool;
    private AsynchronousServerSocketChannel serverSocket;
    private CompletableFuture<Void> onShutdown;
 
-   public DefaultGLSPServerLauncher(final GLSPModule module) {
-      super(module);
+   public DefaultGLSPServerLauncher(final GLSPModule glspModule) {
+      super(glspModule);
    }
 
    @Override
-   public void run(final String hostname, final int port) {
+   public void start(final String hostname, final int port) {
       Future<Void> onClose;
       try {
          onClose = asyncRun(hostname, port);
          onClose.get();
          log.info("Stopped GLSP server");
       } catch (IOException | InterruptedException | ExecutionException e) {
-         log.error(e.getMessage());
-         e.printStackTrace();
+         log.error("Error during server close!", e);
       }
-
    }
 
    public Future<Void> asyncRun(final String hostname, final int port)
@@ -75,7 +74,7 @@ public class DefaultGLSPServerLauncher extends GLSPServerLauncher {
       serverSocket = AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(hostname, port));
       threadPool = Executors.newCachedThreadPool();
 
-      CompletionHandler<AsynchronousSocketChannel, Void> handler = new CompletionHandler<AsynchronousSocketChannel, Void>() {
+      CompletionHandler<AsynchronousSocketChannel, Void> handler = new CompletionHandler<>() {
          @Override
          public void completed(final AsynchronousSocketChannel result, final Void attachment) {
             serverSocket.accept(null, this); // Prepare for the next connection
@@ -89,13 +88,16 @@ public class DefaultGLSPServerLauncher extends GLSPServerLauncher {
       };
 
       serverSocket.accept(null, handler);
-      log.info("The GLSP server is ready to accept new client requests");
+      log.info("The GLSP server is ready to accept new client requests on port: " + port);
+      // Print a message to the output stream that indicates that the start is completed.
+      // This indicates to the client that the sever process is ready (in an embedded scenario).
+      System.out.println(START_UP_COMPLETE_MSG);
 
       return onShutdown;
    }
 
    private void createClientConnection(final AsynchronousSocketChannel socketChannel) {
-      Injector injector = Guice.createInjector(getGLSPModule());
+      Injector injector = createInjector();
       GsonConfigurator gsonConf = injector.getInstance(GsonConfigurator.class);
       try {
          InputStream in = Channels.newInputStream(socketChannel);
@@ -103,21 +105,21 @@ public class DefaultGLSPServerLauncher extends GLSPServerLauncher {
 
          Consumer<GsonBuilder> configureGson = (final GsonBuilder builder) -> gsonConf.configureGsonBuilder(builder);
          Function<MessageConsumer, MessageConsumer> wrapper = Function.identity();
-         GLSPServer languageServer = injector.getInstance(GLSPServer.class);
-
-         Launcher<GLSPClient> launcher = Launcher.createIoLauncher(languageServer, GLSPClient.class, in, out,
+         GLSPJsonrpcServer glspServer = (GLSPJsonrpcServer) injector.getInstance(GLSPServer.class);
+         Launcher<GLSPJsonrpcClient> launcher = Launcher.createIoLauncher(glspServer, GLSPJsonrpcClient.class, in, out,
             threadPool, wrapper, configureGson);
-         languageServer.connect(launcher.getRemoteProxy());
+         glspServer.connect(launcher.getRemoteProxy());
          log.info("Starting GLSP server connection for client " + socketChannel.getRemoteAddress());
          launcher.startListening().get();
          log.info("Stopping GLSP server connection for client" + socketChannel.getRemoteAddress());
+         glspServer.shutdown();
       } catch (IOException | InterruptedException | ExecutionException ex) {
          log.error("Failed to create client connection " + ex.getMessage(), ex);
       } finally {
          try {
             socketChannel.close();
          } catch (IOException e) {
-            log.debug("Excpetion occured when trying to close socketChannel", e);
+            log.error("Excpetion occured when trying to close socketChannel", e);
          }
       }
    }
